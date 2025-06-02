@@ -1,0 +1,92 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+.register-container {
+    height: 100vh;
+    background-color: #f1f7fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.register-box {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.register-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #222;
+}
+
+.register-subtext {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box; /* <-- Add this line */
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 14px;
+}
+
+.register-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background-color: #00b4d8;
+    color: white;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.register-button:hover {
+    background-color: #0096c7;
+}
+
+.register-login-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #444;
+}
+
+.register-login-text a {
+    color: #00b4d8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-message {
+    color: #c5032b;
+    margin-top: 10px;
+    font-size: 14px;
+}

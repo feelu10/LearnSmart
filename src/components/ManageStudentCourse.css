@@ -1,0 +1,395 @@
+/* ManageStudentCourse Layout */
+.manage-students-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7fafc;
+}
+
+.manage-students-main {
+  position: relative;
+  width: 1728px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 30px 50px;
+}
+
+/* Header section styles - same as MyCourse */
+.header {
+  background: #f5f8fa;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  margin-top: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  width: 100%;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #222;
+  margin-right: 4px;
+}
+
+.user-role {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #B0B7C3;
+}
+
+.icons {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.icon-svg svg {
+  width: 24px;
+  height: 24px;
+  stroke: #373A3D;
+}
+
+/* Course Header Section */
+.course-header-section {
+  width: 100%;
+  height: 150px;
+  background: #f5f8fa;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.course-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  color: #222;
+}
+
+/* Course Tabs Section */
+.course-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  width: 100%;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 10px;
+}
+
+.tab-group {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 12px 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.tab-button:hover {
+  color: #0096c7;
+}
+
+.tab-button.active {
+  color: #0096c7;
+  font-weight: 600;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #0096c7;
+  border-radius: 2px;
+}
+
+/* Table Controls */
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-button, .filter-button, .sort-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #eaecef;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px 12px 8px 34px;
+  border-radius: 4px;
+  border: 1px solid #eaecef;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  width: 200px;
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 14px;
+}
+
+/* Students Table */
+.students-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Poppins', sans-serif;
+}
+
+.students-table th, .students-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eaecef;
+}
+
+.students-table th {
+  font-weight: 500;
+  font-size: 14px;
+  color: #666;
+  padding-bottom: 16px;
+}
+
+.students-table td {
+  font-size: 14px;
+  color: #222;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.student-id {
+  font-family: 'Roboto Mono', monospace;
+  color: #888;
+}
+
+.student-avatar-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ccc;
+}
+
+.date-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-icon {
+  font-size: 14px;
+  color: #888;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.in-progress {
+  background: #e8f4fd;
+  color: #4285f4;
+}
+
+.status-badge.complete {
+  background: #e6f7ef;
+  color: #34a853;
+}
+
+.status-badge.pending {
+  background: #fff7e6;
+  color: #fbbc05;
+}
+
+.status-badge.approved {
+  background: #fff0e6;
+  color: #fa7b17;
+}
+
+.status-badge.rejected {
+  background: #fae9e9;
+  color: #ea4335;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #888;
+  font-size: 16px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pagination-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #eaecef;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-button.active {
+  background: #0096c7;
+  color: #fff;
+  border-color: #0096c7;
+}
+
+.pagination-button.prev, .pagination-button.next {
+  width: auto;
+  padding: 0 12px;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+  .manage-students-main {
+    margin-left: 0;
+    padding: 20px;
+    align-items: stretch;
+  }
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .tab-group {
+    gap: 20px;
+  }
+  .students-table-container {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .course-tabs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .table-controls {
+    width: 100%;
+  }
+  .search-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 10px;
+  }
+  .course-header-section {
+    height: 120px;
+    padding: 0 20px;
+  }
+  .tab-group {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+} 

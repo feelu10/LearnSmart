@@ -1,0 +1,274 @@
+/* QuizBuilder Layout */
+.quiz-builder-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7fafc;
+}
+
+.quiz-builder-main {
+  position: relative;
+  width: 1728px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 30px 50px;
+}
+
+/* Header section styles - same as MyCourse */
+.header {
+  background: #f5f8fa;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  margin-top: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  width: 100%;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #222;
+  margin-right: 4px;
+}
+
+.user-role {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #B0B7C3;
+}
+
+.icons {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.icon-svg svg {
+  width: 24px;
+  height: 24px;
+  stroke: #373A3D;
+}
+
+/* Quiz Builder Content */
+.quiz-builder-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: #222;
+  margin-bottom: 24px;
+}
+
+.quiz-builder-tabs {
+  display: inline-flex;
+  background: #f5f8fa;
+  border-radius: 30px;
+  padding: 4px;
+  margin-bottom: 30px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 8px 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  color: #666;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  background: #32bfde;
+  color: white;
+  font-weight: 500;
+}
+
+/* Quiz Form */
+.quiz-form {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-control {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  color: #333;
+  background: #fff;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: #32bfde;
+}
+
+.course-select {
+  cursor: pointer;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+}
+
+.topic-input::placeholder {
+  color: #aaa;
+}
+
+/* Import Section */
+.import-section {
+  margin: 40px 0;
+}
+
+.import-area {
+  background: #f7fafd;
+  border: 2px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.import-area:hover {
+  border-color: #32bfde;
+  background: #f0f9fb;
+}
+
+.import-icon {
+  margin-bottom: 16px;
+  color: #32bfde;
+}
+
+.import-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #222;
+  margin: 0;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.generate-btn {
+  background: #32bfde;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 14px 40px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 10px rgba(50, 191, 222, 0.2);
+}
+
+.generate-btn:hover {
+  background: #2baecc;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+  .quiz-builder-main {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .quiz-form {
+    max-width: 100%;
+  }
+  
+  .import-area {
+    padding: 40px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+  
+  .icons {
+    margin-top: 16px;
+  }
+  
+  .quiz-builder-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .tab-button {
+    padding: 8px 16px;
+  }
+} 

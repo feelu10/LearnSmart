@@ -1,0 +1,310 @@
+/* Settings Layout */
+.settings-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7fafc;
+}
+
+.settings-main {
+  position: relative;
+  width: 1728px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 30px 50px;
+}
+
+/* Header section styles - same as other pages */
+.header {
+  background: #f5f8fa;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  margin-top: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  width: 100%;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name-bold {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #222;
+  margin-right: 4px;
+}
+
+.user-role {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #B0B7C3;
+}
+
+.icons {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.icon-svg svg {
+  width: 24px;
+  height: 24px;
+  stroke: #373A3D;
+}
+
+/* Settings Content */
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Profile Section */
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #000000;
+  margin: 5px 0;
+  text-align: center;
+}
+
+.change-profile-btn {
+  background: rgba(46, 192, 229, 0.56);
+  border-radius: 50px;
+  border: none;
+  padding: 5px 12px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  cursor: pointer;
+}
+
+/* Settings Container */
+.settings-container {
+  width: 100%;
+  max-width: 700px;
+}
+
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: #000000;
+  margin: 20px 0;
+}
+
+/* Account Section */
+.account-section {
+  margin-bottom: 30px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F5F9FF;
+  border-radius: 3px;
+  padding: 15px 20px;
+  margin-bottom: 3px;
+}
+
+.setting-info {
+  flex: 1;
+}
+
+.setting-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
+.setting-value {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #373A3D;
+}
+
+.action-btn {
+  min-width: 70px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  color: #000000;
+  border: none;
+  cursor: pointer;
+}
+
+.change-btn {
+  background: #2EC0E5;
+}
+
+.delete-btn {
+  background: #EB5252;
+}
+
+/* Notifications Sections */
+.website-notifications-section,
+.email-notifications-section {
+  margin-bottom: 25px;
+}
+
+.notification-question {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #373A3D;
+  margin-bottom: 15px;
+}
+
+.notification-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #333333;
+  cursor: pointer;
+}
+
+.notification-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  border: 1px solid #333333;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Logout Section */
+.logout-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.logout-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.logout-btn span {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  color: #F13E3E;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .settings-main {
+    padding: 15px;
+  }
+  
+  .setting-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .action-btn {
+    margin-top: 10px;
+  }
+  
+  .setting-info {
+    width: 100%;
+  }
+}
+.setting-value {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 14px;
+  width: 80%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.setting-value:focus {
+  border-color: #0ea5e9; /* sky-500 */
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+  outline: none;
+}

@@ -1,0 +1,213 @@
+.quiz-progress-container {
+  position: relative;
+  width: 557px;
+  height: 384px;
+  background: #FFFFFF;
+  box-shadow: 0px 4px 46px -13px rgba(0, 0, 0, 0.17);
+  border-radius: 5px;
+  padding: 24px;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header */
+.quiz-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.quiz-progress-header h2 {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 28px;
+  color: #2E3A59;
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 24px;
+  color: #2E3A59;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: #2E3A59;
+  margin: 0 8px;
+}
+
+.avg-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 16px;
+}
+
+.avg-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background: #373A3D;
+  border-radius: 50%;
+}
+
+.avg-indicator span {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 24px;
+  color: #2E3A59;
+}
+
+/* Chart area */
+.chart {
+  position: relative;
+  height: 280px;
+  margin-top: 12px;
+}
+
+/* Y-axis labels */
+.y-axis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.y-label {
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 12px;
+  color: #000000;
+  transform: translateY(-50%);
+}
+
+/* Grid lines */
+.grid-lines {
+  position: absolute;
+  left: 40px;
+  right: 20px;
+  top: 0;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.grid-line {
+  width: 100%;
+  height: 1px;
+  background: #F0F0F0;
+}
+
+/* Bars */
+.bars {
+  position: absolute;
+  left: 40px;
+  right: 20px;
+  bottom: 20px;
+  height: calc(100% - 20px);
+  display: flex;
+  justify-content: space-between;
+}
+
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar {
+  width: 40px;
+  background: #2EC0E5;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: 8px;
+}
+
+.label {
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 20px;
+  color: #2E3A59;
+}
+
+/* Trend line */
+.trend-line {
+  position: absolute;
+  left: 40px;
+  right: 20px;
+  top: 0;
+  bottom: 40px;
+  width: calc(100% - 60px);
+  height: calc(100% - 40px);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Average point */
+.avg-point-container {
+  position: absolute;
+  left: 74%;
+  top: 59%;
+  z-index: 10;
+}
+
+.point {
+  width: 18px;
+  height: 14px;
+  background: #373A3D;
+  border: 1px solid #FFFFFF;
+  border-radius: 50%;
+}
+
+.tooltip {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(46, 58, 89, 0.4);
+  backdrop-filter: blur(4px);
+  border-radius: 4px;
+  padding: 4px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 65px;
+}
+
+.tooltip span {
+  font-weight: 400;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.tooltip span:first-child {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.tooltip span:last-child {
+  font-size: 12px;
+  line-height: 16px;
+} 
