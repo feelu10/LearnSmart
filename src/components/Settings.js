@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Sidebar from './Sidebar';
 import './Settings.css';
 import defaultAvatar from '../assets/avatars.png';
+import { AppContext } from '../AppContext';
+
 const Settings = () => {
+  const { data, setData } = useContext(AppContext);
+
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -15,8 +19,33 @@ const Settings = () => {
     notif2: false,
     notif3: false,
   });
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // 🟢 Prefer preloaded data
   useEffect(() => {
+    if (data.settings && data.settings.email) {
+      const s = data.settings;
+      setForm((prev) => ({
+        ...prev,
+        username: s.username || '',
+        email: s.email || '',
+        avatar: s.avatar
+          ? s.avatar.startsWith('http')
+            ? s.avatar
+            : `${process.env.REACT_APP_API_URL}/${s.avatar}`
+          : defaultAvatar,
+        notif: s.notif || false,
+        ads: s.ads || false,
+        emailNotif: s.email_notif || false,
+        notif1: s.notif1 || false,
+        notif2: s.notif2 || false,
+        notif3: s.notif3 || false,
+      }));
+      return; // don't fetch again if already loaded
+    }
+
+    // 🟡 Fallback: fetch settings from API if not in context
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -27,31 +56,37 @@ const Settings = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to fetch');
+        const dataRes = await res.json();
+        if (!res.ok) throw new Error(dataRes.error || 'Failed to fetch');
 
         setForm((prev) => ({
           ...prev,
-          username: data.username || '',
-          email: data.email || '',
-          avatar: data.avatar
-            ? data.avatar.startsWith('http')
-              ? data.avatar
-              : `${process.env.REACT_APP_API_URL}/${data.avatar}`
+          username: dataRes.username || '',
+          email: dataRes.email || '',
+          avatar: dataRes.avatar
+            ? dataRes.avatar.startsWith('http')
+              ? dataRes.avatar
+              : `${process.env.REACT_APP_API_URL}/${dataRes.avatar}`
             : defaultAvatar,
-          notif: data.notif || false,
-          ads: data.ads || false,
-          emailNotif: data.email_notif || false,
-          notif1: data.notif1 || false,
-          notif2: data.notif2 || false,
-          notif3: data.notif3 || false,
+          notif: dataRes.notif || false,
+          ads: dataRes.ads || false,
+          emailNotif: dataRes.email_notif || false,
+          notif1: dataRes.notif1 || false,
+          notif2: dataRes.notif2 || false,
+          notif3: dataRes.notif3 || false,
+        }));
+
+        // Store to context so other pages can use
+        setData((prev) => ({
+          ...prev,
+          settings: dataRes,
         }));
 
         localStorage.setItem('user', JSON.stringify({
-          username: data.username,
-          email: data.email,
-          avatar: data.avatar,
-          role: data.role,
+          username: dataRes.username,
+          email: dataRes.email,
+          avatar: dataRes.avatar,
+          role: dataRes.role,
         }));
       } catch (err) {
         console.error('❌ Failed to load user settings:', err);
@@ -60,7 +95,7 @@ const Settings = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [data.settings, setData]);
 
   const handleInput = (e) => {
     const { name, type, value, checked } = e.target;

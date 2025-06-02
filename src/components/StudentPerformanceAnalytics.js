@@ -13,10 +13,43 @@ const StudentPerformanceAnalytics = () => {
 
   useEffect(() => {
     const fetchStudent = async () => {
+      const token = localStorage.getItem('token');
+      const currentUserId = localStorage.getItem('user_id');
+      const currentRole = localStorage.getItem('user_role');
+
+      if (!token) {
+        window.PNotify.alert({
+          text: 'No token found. Please log in.',
+          type: 'error',
+          delay: 2500
+        });
+        navigate('/web/login');
+        return;
+      }
+
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/students/${id}`);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/students/${id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
         const data = await response.json();
+
         if (response.ok) {
+          if (currentUserId !== data.custom_id && currentRole !== 'instructor') {
+            window.PNotify.alert({
+              text: 'Access denied. You are not allowed to view other students\' data.',
+              type: 'error',
+              delay: 2500
+            });
+            navigate('/dashboard');
+            return;
+          }
+
           setStudent({
             id: data.custom_id || id,
             name: data.email,
@@ -29,15 +62,27 @@ const StudentPerformanceAnalytics = () => {
               last_activity: 'N/A'
             }
           });
+        } else {
+          window.PNotify.alert({
+            text: data.error || 'Failed to fetch student info.',
+            type: 'error',
+            delay: 2500
+          });
+          navigate('/dashboard');
         }
       } catch (err) {
-        console.error('Failed to fetch student details:', err);
+        window.PNotify.alert({
+          text: 'Server error while fetching student data.',
+          type: 'error',
+          delay: 2500
+        });
       } finally {
         setShowLoader(false);
       }
     };
+
     fetchStudent();
-  }, [id]);
+  }, [id, navigate]);
 
   if (showLoader) {
     return (
@@ -47,7 +92,17 @@ const StudentPerformanceAnalytics = () => {
     );
   }
 
-  if (!student) return <div className="text-center mt-10 text-red-500">Student not found.</div>;
+  if (!student) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="text-4xl mb-4">😕</div>
+          <h2 className="text-2xl font-semibold text-red-600">Student Not Found</h2>
+          <p className="text-gray-600 mt-2">The student you're trying to view does not exist or you don't have permission.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="performance-analytics-layout">

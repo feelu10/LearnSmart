@@ -1,49 +1,97 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Sidebar from './Sidebar';
 import './MyCourse.css';
-import avatarIcon from '../assets/avatar.png';
+import avatarIcon from '../assets/avatars.png';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from './PageHeader';
-
-const courses = Array(8).fill({
-  title: 'Course Topic',
-  image: '', // Placeholder for image
-});
-
-// New course topics for the dropdown
-const newCourseTopics = [
-  { id: 1, title: 'New Course Topic', color: '#b35959', author: 'Prashant Kumar Singh' },
-  { id: 2, title: 'New Course Topic', color: '#5970b3', author: 'Prashant Kumar Singh' },
-  { id: 3, title: 'New Course Topic', color: '#59b380', author: 'Prashant Kumar Singh' },
-];
+import { AppContext } from '../AppContext';
 
 const MyCourse = () => {
   const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const dropdownRef = useRef(null);
+  const { data, setData } = useContext(AppContext);
 
-  // Close dropdown when clicking outside
+  const [modalOpen, setModalOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [myCourses, setMyCourses] = useState([]);
+  const [courseSearchQuery, setCourseSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('title');
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    if (data.courses && data.courses.length > 0) {
+      setMyCourses(data.courses);
+      setLoading(false);
+    } else {
+      fetchCourses();
+    }
   }, []);
 
-  const handleCourseClick = (id) => {
-    navigate(`/course/${id}`);
+  const fetchCourses = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/courses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const fetched = await res.json();
+      if (res.ok) {
+        setMyCourses(fetched);
+        setData((prev) => ({ ...prev, courses: fetched }));
+      }
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+    }
+    setLoading(false);
   };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+  const handleCourseClick = (id) => navigate(`/course/${id}`);
+
+  const handleAddCourse = async () => {
+    if (!title.trim() || !description.trim()) {
+      window.PNotify.alert({ text: 'Title and Description are required.', type: 'error' });
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    if (imageFile) formData.append('image', imageFile);
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/courses`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTitle('');
+        setDescription('');
+        setImageFile(null);
+        setModalOpen(false);
+        fetchCourses(); // refresh list
+        window.PNotify.alert({ text: 'Course added successfully.', type: 'success' });
+      } else {
+        window.PNotify.alert({ text: data.error || 'Failed to add course.', type: 'error' });
+      }
+    } catch (err) {
+      console.error('Error adding course:', err);
+      window.PNotify.alert({ text: 'Server error.', type: 'error' });
+    }
   };
+
+  const filteredCourses = myCourses.filter((c) =>
+    c.title.toLowerCase().includes(courseSearchQuery.toLowerCase())
+  );
+
+  const sortedCourses = [...filteredCourses].sort((a, b) => {
+    if (sortOption === 'title') return a.title.localeCompare(b.title);
+    if (sortOption === 'date') return new Date(b.created_at) - new Date(a.created_at);
+    return 0;
+  });
 
   return (
     <div className="mycourse-layout">
@@ -54,103 +102,108 @@ const MyCourse = () => {
           role={localStorage.getItem('user_role') || 'User'}
           avatar={localStorage.getItem('user_avatar')}
         />
-        
-        <div className="mycourse-controls">
-          <div className="add-course-container" ref={dropdownRef}>
-            <button className="add-course-btn" onClick={toggleDropdown}>Add a new course</button>
-            
-            {dropdownOpen && (
-              <div className="new-course-dropdown">
-                <div className="search-bar">
-                  <div className="search-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="Search New Course Topic" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button className="search-button">Search</button>
-                </div>
-                
-                <div className="new-course-topics">
-                  {newCourseTopics.map((topic) => (
-                    <div className="topic-card" key={topic.id}>
-                      <div className="topic-image" style={{ backgroundColor: topic.color }}>
-                      </div>
-                      <div className="topic-content">
-                        <div className="topic-label">TOPIC</div>
-                        <div className="topic-title">{topic.title}</div>
-                        <div className="topic-author">
-                          <img src={avatarIcon} alt="Author" className="topic-author-avatar" />
-                          <span>{topic.author}</span>
-                        </div>
-                      </div>
-                      <div className="topic-actions">
-                        <button className="topic-action-btn">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                          </svg>
-                        </button>
-                        <button className="topic-action-btn">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="filters">
-            <div className="filter sort-filter">
-              <div className="filter-content">
-                <span>Sort by</span>
-              </div>
-              <span className="filter-arrow">▼</span>
-            </div>
+
+        <div className="mycourse-controls flex items-center justify-between mb-4">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Add New Course
+          </button>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search My Courses"
+              className="border p-2 rounded"
+              value={courseSearchQuery}
+              onChange={(e) => setCourseSearchQuery(e.target.value)}
+            />
+            <select
+              className="border p-2 rounded"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="title">Title</option>
+              <option value="date">Newest</option>
+            </select>
           </div>
         </div>
-        
-        <div className="course-grid">
-          {courses.map((course, idx) => (
-            <div className="course-card" key={idx} onClick={() => handleCourseClick(idx + 1)}>
-              <div className={`course-image-placeholder ${idx % 2 === 0 ? 'light' : 'dark'}`}>
-                <button className="favorite-btn" onClick={(e) => e.stopPropagation()}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                  </svg>
+
+        {loading ? (
+          <div className="text-center text-gray-500 py-10">Loading courses...</div>
+        ) : (
+          <div className="course-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sortedCourses.map((course) => (
+              <div
+                key={course._id}
+                onClick={() => handleCourseClick(course._id)}
+                className="cursor-pointer bg-white shadow rounded overflow-hidden"
+              >
+                <div className="h-40 bg-gray-200 flex items-center justify-center">
+                  {course.image ? (
+                    <img
+                      src={`${process.env.REACT_APP_API_URL}/${course.image}`}
+                      alt="Course"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img src={avatarIcon} alt="default" className="h-20" />
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold">{course.title}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+              <h2 className="text-xl font-bold mb-4">Add New Course</h2>
+              <input
+                type="text"
+                placeholder="Course Title"
+                className="w-full mb-3 p-2 border rounded"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <textarea
+                placeholder="Course Description"
+                className="w-full mb-3 p-2 border rounded"
+                rows="3"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="mb-4"
+                onChange={(e) => setImageFile(e.target.files[0])}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddCourse}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Submit
                 </button>
               </div>
-              <div className="course-info">
-                <span className="course-topic">TOPIC</span>
-                <div className="course-details">
-                  <div className="course-text">Course<br/>Topic</div>
-                  <button className="course-menu" onClick={(e) => e.stopPropagation()}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="4" cy="12" r="2"></circle>
-                      <circle cx="12" cy="12" r="2"></circle>
-                      <circle cx="20" cy="12" r="2"></circle>
-                    </svg>
-                  </button>
-                </div>
-              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default MyCourse; 
+export default MyCourse;
