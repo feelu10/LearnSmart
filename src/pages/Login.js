@@ -60,7 +60,7 @@ function LoginPage() {
         }
 
         // 🚫 Block unverified instructors
-        if (user.role === 'instructor' && (!user.status || user.status === false)) {
+        if (user.role === 'instructor' && !user.email_verified) {
           setShowLoader(false);
           return window.PNotify.alert({
             text: "Instructor account not yet verified.",
@@ -91,7 +91,6 @@ function LoginPage() {
           icons: 'brighttheme',
         });
 
-        // ✅ Redirect based on role
         setTimeout(() => {
           if (user.role === 'admin') {
             navigate('/admin/dashboard');
