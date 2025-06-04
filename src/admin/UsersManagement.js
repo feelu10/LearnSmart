@@ -138,9 +138,7 @@ const UserManagement = () => {
                       {getStatusLabel(user)}
                     </td>
                     <td className="p-3 whitespace-nowrap min-w-[160px]">
-                      {user.last_login
-                        ? new Date(user.last_login).toLocaleString()
-                        : '—'}
+                      {user.last_login || '—'}
                     </td>
                     <td className="p-3 whitespace-nowrap min-w-[120px]">
                       {toggling === user._id ? (
