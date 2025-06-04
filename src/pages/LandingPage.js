@@ -38,12 +38,13 @@ function LandingPage() {
           Instantly create engaging, curriculum-based quizzes using AI. Save time and empower students to learn smarter.
         </p>
         <a
-          href="/web/generate-quiz"
+          href="https://play.google.com/store/apps/details?id=your.app.id" // replace with actual app URL
           className="px-6 py-3 bg-sky-500 text-white rounded-full hover:bg-sky-600 text-lg transition"
         >
-          Generate Your First Quiz
+          Download Our Mobile App
         </a>
       </section>
+
 
       {/* Features */}
       <section className="py-20 bg-white">
