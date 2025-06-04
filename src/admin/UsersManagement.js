@@ -13,48 +13,49 @@ const UserManagement = () => {
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [loading, setLoading] = useState(true);
-  const [toggling, setToggling] = useState(null); // user ID being toggled
+  const [toggling, setToggling] = useState(null);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/users/admin`)
       .then(res => res.json())
-      .then(data => setUsers(data.users || data))
+      .then(data => {
+        console.log('Fetched users:', data);
+        setUsers(data.users || data);
+      })
       .catch(err => console.error('Failed to fetch users:', err))
       .finally(() => setLoading(false));
   }, []);
 
-    const toggleUserStatus = async (userId, newStatus) => {
+  const toggleUserStatus = async (userId, newStatus) => {
     setToggling(userId);
 
     try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/status/${userId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/status/${userId}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ email_verified: newStatus })
-        });
+        body: JSON.stringify({ status: newStatus })
+      });
 
-        if (res.ok) {
+      if (res.ok) {
         setUsers(prev =>
-            prev.map(u => (u._id === userId ? { ...u, email_verified: newStatus } : u))
+          prev.map(u => (u._id === userId ? { ...u, status: newStatus } : u))
         );
-        } else {
+        console.log(`Updated ${userId} to ${newStatus}`);
+      } else {
         console.error('Failed to update status');
-        }
+      }
     } catch (error) {
-        console.error('Error toggling status:', error);
+      console.error('Error toggling status:', error);
     } finally {
-        setToggling(null);
+      setToggling(null);
     }
-    };
-
+  };
 
   const getStatusLabel = (user) => {
-    if (user.email_verified === true) return 'Active';
-    if (user.email_verified === false) return 'Suspended';
-    return 'Pending';
+    return user.status || 'Pending';
   };
 
   const getStatusDot = (user) => {
@@ -118,14 +119,14 @@ const UserManagement = () => {
             <table className="min-w-full bg-white shadow-md rounded">
               <thead className="bg-gray-100 text-gray-700 text-sm leading-6">
                 <tr>
-                    <th className="text-left p-3">Name</th>
-                    <th className="text-left p-3">Email</th>
-                    <th className="text-left p-3">Role</th>
-                    <th className="text-left p-3">Status</th>
-                    <th className="text-left p-3 min-w-[160px]">Last Login</th>
-                    <th className="text-left p-3 min-w-[120px]">Actions</th>
+                  <th className="text-left p-3">Name</th>
+                  <th className="text-left p-3">Email</th>
+                  <th className="text-left p-3">Role</th>
+                  <th className="text-left p-3">Status</th>
+                  <th className="text-left p-3 min-w-[160px]">Last Login</th>
+                  <th className="text-left p-3 min-w-[120px]">Actions</th>
                 </tr>
-                </thead>
+              </thead>
               <tbody>
                 {filteredUsers.map((user, index) => (
                   <tr key={index} className="border-t text-sm leading-6">
@@ -137,28 +138,28 @@ const UserManagement = () => {
                       {getStatusLabel(user)}
                     </td>
                     <td className="p-3 whitespace-nowrap min-w-[160px]">
-                    {user.last_login
+                      {user.last_login
                         ? new Date(user.last_login).toLocaleString()
                         : '—'}
                     </td>
                     <td className="p-3 whitespace-nowrap min-w-[120px]">
-                    {toggling === user._id ? (
+                      {toggling === user._id ? (
                         <span className="text-sm text-gray-500">Updating...</span>
-                    ) : user.email_verified ? (
+                      ) : user.status === 'Active' ? (
                         <button
-                        className="text-sm text-red-600 hover:underline"
-                        onClick={() => toggleUserStatus(user._id, false)}
+                          className="text-sm text-red-600 hover:underline"
+                          onClick={() => toggleUserStatus(user._id, 'Suspended')}
                         >
-                        Deactivate
+                          Deactivate
                         </button>
-                    ) : (
+                      ) : (
                         <button
-                        className="text-sm text-green-600 hover:underline"
-                        onClick={() => toggleUserStatus(user._id, true)}
+                          className="text-sm text-green-600 hover:underline"
+                          onClick={() => toggleUserStatus(user._id, 'Active')}
                         >
-                        Activate
+                          Activate
                         </button>
-                    )}
+                      )}
                     </td>
                   </tr>
                 ))}
