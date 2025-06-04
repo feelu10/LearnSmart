@@ -1,34 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import PageHeader from './PageHeader';
 import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../AppContext';
 
 const MyQuizzes = () => {
-  const [quizzes, setQuizzes] = useState([]);
+  const { data, setData } = useContext(AppContext);
   const [filter, setFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
-
-  const fetchQuizzes = async () => {
-    const email = localStorage.getItem('user_email');
-    const role = localStorage.getItem('user_role');
-    if (role !== 'instructor') return;
-
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/get-quizzes?email=${email}`);
-      const data = await res.json();
-      if (res.ok) {
-        setQuizzes(data.quizzes || []);
-      }
-    } catch (error) {
-      console.error('Error fetching quizzes:', error);
-    }
-  };
+  const quizzes = data?.myQuizzes || [];
 
   useEffect(() => {
-    fetchQuizzes();
-  }, []);
+    if (Array.isArray(data.myQuizzes)) {
+      setLoading(false);
+    }
+  }, [data.myQuizzes]);
+
 
   const confirmDelete = (quizId) => {
     setQuizToDelete(quizId);
@@ -36,20 +28,26 @@ const MyQuizzes = () => {
   };
 
   const handleDeleteQuiz = async () => {
+    setIsDeleting(true);
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/quizzes/${quizToDelete}`, {
         method: 'DELETE',
       });
-      const data = await res.json();
+      const respData = await res.json();
       if (res.ok) {
-        setQuizzes(prev => prev.filter(q => q._id !== quizToDelete));
+        setData((prev) => ({
+          ...prev,
+          myQuizzes: (prev.myQuizzes || []).filter(q => q._id !== quizToDelete)
+        }));
         setShowModal(false);
       } else {
-        alert(data.error || 'Failed to delete quiz.');
+        alert(respData.error || 'Failed to delete quiz.');
       }
     } catch (err) {
       console.error('Error deleting quiz:', err);
       alert('An error occurred while deleting the quiz.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -70,7 +68,6 @@ const MyQuizzes = () => {
 
         <div className="mb-6">
           <h2 className="text-3xl font-bold text-sky-700 mb-2">📚 My Quizzes</h2>
-
           <div className="mt-4 flex items-center gap-2">
             <label className="font-medium text-gray-700">Filter:</label>
             <select
@@ -85,9 +82,20 @@ const MyQuizzes = () => {
           </div>
         </div>
 
-        {filteredQuizzes.length === 0 ? (
-          <p className="text-gray-400">No quizzes found for this filter.</p>
-        ) : (
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <span className="h-10 w-10 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></span>
+          </div>
+          ) : loading && filteredQuizzes.length > 0 ? (
+            <div className="flex justify-center items-center h-40">
+              <span className="h-10 w-10 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></span>
+            </div>
+          ) : filteredQuizzes.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center text-gray-400 h-40">
+              <span className="text-4xl mb-2">📭</span>
+              <p className="text-sm">No quizzes found for this filter.</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredQuizzes.map((quiz) => (
               <div
@@ -108,11 +116,7 @@ const MyQuizzes = () => {
 
                 <div className="mt-4 flex justify-between">
                   <button
-                    onClick={() => {
-                      localStorage.setItem('generated_quiz', JSON.stringify(quiz.quiz));
-                      localStorage.setItem('quiz_title', quiz.title);
-                      navigate('/quiz-builder/generate');
-                    }}
+                    onClick={() => navigate(`/quiz-builder/generate/${quiz._id}`)}
                     className="text-sm bg-sky-500 text-white px-4 py-1.5 rounded-full hover:bg-sky-600 transition"
                   >
                     View / Edit
@@ -147,9 +151,13 @@ const MyQuizzes = () => {
               </button>
               <button
                 onClick={handleDeleteQuiz}
-                className="px-4 py-2 rounded-lg text-sm bg-red-500 hover:bg-red-600 text-white"
+                className="px-4 py-2 rounded-lg text-sm bg-red-500 hover:bg-red-600 text-white flex items-center justify-center gap-2"
+                disabled={isDeleting}
               >
-                Yes, Delete
+                {isDeleting && (
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                )}
+                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
               </button>
             </div>
           </div>

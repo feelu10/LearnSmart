@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../AppContext';
 import Sidebar from './Sidebar';
 import PageHeader from './PageHeader';
 import { useNavigate } from 'react-router-dom';
 
 const QuizBuilder = () => {
+  const { data } = useContext(AppContext);
   const [course, setCourse] = useState('');
   const [customCourse, setCustomCourse] = useState('');
   const [courseList, setCourseList] = useState([]);
@@ -18,14 +20,21 @@ const QuizBuilder = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    if (data && data.courses && data.courses.length > 0) {
+      setCourseList(data.courses);
+    } else {
+      fetchCourses();
+    }
+  }, [data]);
 
   const fetchCourses = async () => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/courses`);
-      const data = await res.json();
-      if (res.ok && Array.isArray(data)) setCourseList(data);
+      const raw = await res.json();
+      if (res.ok) {
+        if (Array.isArray(raw)) setCourseList(raw);
+        else if (raw.courses && Array.isArray(raw.courses)) setCourseList(raw.courses);
+      }
     } catch (err) {
       console.error('Error fetching courses:', err);
     }
@@ -33,23 +42,17 @@ const QuizBuilder = () => {
 
   const handleAddCourse = async () => {
     const trimmed = customCourse.trim();
-    if (trimmed && !courseList.some(c => c.name === trimmed)) {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/courses`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: trimmed })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setCourseList(prev => [...prev, { name: trimmed }]);
-          setCourse(trimmed);
-          setCustomCourse('');
-        } else {
-          alert(data.error || 'Failed to add course');
-        }
-      } catch (err) {
-        console.error('Add course error:', err);
+    if (trimmed && !courseList.some(c => c.title === trimmed)) {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/courses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: trimmed })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCourseList(prev => [...prev, { title: trimmed }]);
+        setCourse(trimmed);
+        setCustomCourse('');
       }
     }
   };
@@ -61,7 +64,7 @@ const QuizBuilder = () => {
         method: 'DELETE'
       });
       if (res.ok) {
-        setCourseList(prev => prev.filter(c => c.name !== courseName));
+        setCourseList(prev => prev.filter(c => c.title !== courseName));
         if (course === courseName) setCourse('');
       } else {
         alert('Failed to delete course');
@@ -91,12 +94,9 @@ const QuizBuilder = () => {
 
       const data = await response.json();
 
-      if (response.ok) {
-        localStorage.setItem('generated_quiz', JSON.stringify(data.quiz));
-        localStorage.setItem('quiz_title', data.title || title);
-
-        window.PNotify.alert({ text: 'Quiz generated successfully!', type: 'success', delay: 1500, styling: 'brighttheme' });
-        setTimeout(() => navigate('/quiz-builder/generate'), 1500);
+      if (response.ok && data.quiz_id) {
+        window.PNotify.alert({ text: 'Quiz generated successfully!', type: 'success', delay: 1200, styling: 'brighttheme' });
+        setTimeout(() => navigate(`/quiz-builder/generate/${data.quiz_id}`), 1200);
       } else {
         window.PNotify.alert({ text: data.error || 'Failed to generate quiz.', type: 'error', delay: 2000, styling: 'brighttheme' });
       }
@@ -168,33 +168,9 @@ const QuizBuilder = () => {
             >
               <option value="">Course Selection</option>
               {courseList.map((c, idx) => (
-                <option key={c._id || idx} value={c.name}>{c.name}</option>
+                <option key={c._id || idx} value={c.title}>{c.title}</option>
               ))}
             </select>
-
-            {/* <div className="flex space-x-2 mb-3">
-              <input
-                type="text"
-                value={customCourse}
-                onChange={(e) => setCustomCourse(e.target.value)}
-                placeholder="Add new course"
-                className="flex-1 border rounded px-4 py-2 focus:ring-2 focus:ring-sky-400 focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleAddCourse}
-                className="bg-emerald-500 text-white px-4 rounded hover:bg-emerald-600"
-              >Add</button>
-            </div>
-
-            <ul className="text-sm text-gray-600 mb-3">
-              {courseList.map((c, i) => (
-                <li key={i} className="flex items-center justify-between">
-                  {c.name}
-                  <button type="button" onClick={() => handleDeleteCourse(c.name)} className="text-red-500 hover:underline text-xs">Remove</button>
-                </li>
-              ))}
-            </ul> */}
 
             <input
               type="text"
@@ -220,17 +196,38 @@ const QuizBuilder = () => {
           <div className="flex flex-col items-center">
             <label htmlFor="importFile" className="w-96 h-48 bg-blue-50 border-2 border-blue-100 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:shadow mb-4">
               <img src="https://img.icons8.com/fluency/96/000000/import.png" className="w-16 mb-2" alt="Import Icon" />
-              <span className="text-gray-700 font-medium text-lg">Import File (.txt, .docx, .pdf)</span>
-              <input type="file" id="importFile" accept=".txt,.doc,.docx,.pdf" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
+              <span className="text-gray-700 font-medium text-lg">{file ? file.name : 'Import File (.txt, .docx, .pdf)'}</span>
+              <input
+                type="file"
+                id="importFile"
+                accept=".txt,.doc,.docx,.pdf"
+                className="hidden"
+                onChange={(e) => {
+                  setFile(e.target.files[0]);
+                  e.target.value = null; // Allow same file to be reselected
+                }}
+              />
             </label>
 
-            <textarea
-              value={material}
-              onChange={(e) => setMaterial(e.target.value)}
-              rows="6"
-              className="w-96 border rounded px-4 py-2 focus:ring-2 focus:ring-sky-400 focus:outline-none resize-none"
-              placeholder="Or paste study material here..."
-            ></textarea>
+            {file && (
+              <button
+                type="button"
+                className="mb-4 text-red-600 hover:underline text-sm"
+                onClick={() => setFile(null)}
+              >
+                Remove uploaded file
+              </button>
+            )}
+
+            {!file && (
+              <textarea
+                value={material}
+                onChange={(e) => setMaterial(e.target.value)}
+                rows="6"
+                className="w-96 border rounded px-4 py-2 focus:ring-2 focus:ring-sky-400 focus:outline-none resize-none"
+                placeholder="Or paste study material here..."
+              ></textarea>
+            )}
           </div>
 
           <div className="flex justify-center">

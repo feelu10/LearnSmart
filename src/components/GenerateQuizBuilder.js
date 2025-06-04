@@ -1,50 +1,79 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import PageHeader from './PageHeader';
 import avatarIcon from '../assets/avatar.png';
 
 const GenerateQuizBuilder = () => {
-  const [quizzes, setQuizzes] = useState([]);
+  const { id } = useParams();
+  const [quiz, setQuiz] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(true); // 🆕 loader state
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/quizzes`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/quizzes/${id}`)
       .then((res) => res.json())
-      .then((data) => setQuizzes(data.quizzes || []))
-      .catch((err) => console.error('Failed to fetch quizzes', err))
-      .finally(() => setLoading(false)); // 🆕 stop loader
-  }, []);
+      .then((data) => {
+        if (data.quiz) {
+          setQuiz({
+            ...data,
+            quiz: data.quiz
+          });
+        }
+      })
+      .catch((err) => {
+        setQuiz(null);
+        console.error('Failed to fetch quiz', err);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
   const handleInputChange = (qIndex, field, value) => {
-    const updated = [...quizzes];
-    updated[0].quiz[qIndex][field] = value;
-    setQuizzes(updated);
+    const updated = { ...quiz };
+    updated.quiz = [...updated.quiz];
+    updated.quiz[qIndex] = { ...updated.quiz[qIndex], [field]: value };
+    setQuiz(updated);
   };
 
   const handleChoiceChange = (qIndex, key, value) => {
-    const updated = [...quizzes];
-    updated[0].quiz[qIndex].choices[key] = value;
-    setQuizzes(updated);
+    const updated = { ...quiz };
+    updated.quiz = [...updated.quiz];
+    updated.quiz[qIndex] = {
+      ...updated.quiz[qIndex],
+      choices: { ...updated.quiz[qIndex].choices, [key]: value }
+    };
+    setQuiz(updated);
   };
 
-  const handleAnswerSelect = (qIndex, value) => {
-    const updated = [...quizzes];
-    updated[0].quiz[qIndex].answer = value;
-    setQuizzes(updated);
+  // Save full answer object for backend compatibility
+  const handleAnswerSelect = (qIndex, key) => {
+    const updated = { ...quiz };
+    updated.quiz = [...updated.quiz];
+    updated.quiz[qIndex] = {
+      ...updated.quiz[qIndex],
+      answer: {
+        letter: key + '. ' + updated.quiz[qIndex].choices[key],
+        text: updated.quiz[qIndex].choices[key]
+      }
+    };
+    setQuiz(updated);
   };
 
   const handleSave = (status) => {
-    const quiz = quizzes[0];
     const payload = {
-      id: quiz._id,
+      id: quiz._id || id,
       title: quiz.title,
       quiz: quiz.quiz,
       status,
+      course_id: quiz.course_id || '',
+      course_title: quiz.course || quiz.course_title || '',
+      user_email: localStorage.getItem('user_email'),
+      avatar: localStorage.getItem('user_avatar') || '',
     };
 
     const notice = window.PNotify.notice({
-      text: 'Saving quiz...',
+      text: status === 'draft' ? 'Saving draft...' : 'Publishing quiz...',
       hide: false,
       styling: 'brighttheme',
       icons: 'brighttheme',
@@ -58,17 +87,15 @@ const GenerateQuizBuilder = () => {
       .then((res) => res.json())
       .then((data) => {
         notice.close();
-
         window.PNotify.alert({
-          text: data.message || 'Quiz saved!',
+          text: data.message || (status === 'draft' ? 'Draft saved!' : 'Quiz published!'),
           type: 'success',
           delay: 2000,
           styling: 'brighttheme',
           icons: 'brighttheme',
         });
-
         setTimeout(() => {
-          window.location.href = '/quiz-builder/my-quizzes';
+          navigate('/quiz-builder/my-quizzes');
         }, 2000);
       })
       .catch((err) => {
@@ -80,7 +107,7 @@ const GenerateQuizBuilder = () => {
           styling: 'brighttheme',
           icons: 'brighttheme',
         });
-        console.error('Error saving quiz:', err);
+        console.error('Error publishing quiz:', err);
       });
   };
 
@@ -120,15 +147,16 @@ const GenerateQuizBuilder = () => {
                 </button>
               </div>
 
-              {quizzes.length > 0 && (
+              {quiz && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold">{quizzes[0].title}</h3>
-                  {quizzes[0].quiz.map((q, index) => {
+                  <h3 className="text-lg font-semibold">{quiz.title}</h3>
+                  {quiz.quiz.map((q, index) => {
+                    // Get first letter only (A/B/C/D) for auto-select
                     const answerLetter =
                       typeof q.answer === 'string'
                         ? q.answer.toUpperCase()
                         : typeof q.answer === 'object'
-                        ? q.answer.letter?.toUpperCase()
+                        ? q.answer.letter?.toUpperCase() || ''
                         : '';
 
                     return (
@@ -157,8 +185,9 @@ const GenerateQuizBuilder = () => {
                               <input
                                 type="radio"
                                 name={`answer-${index}`}
-                                checked={answerLetter === key}
-                                onChange={() => handleAnswerSelect(index, key)}
+                                checked={answerLetter.startsWith(key)}
+                                disabled={!editing}
+                                onChange={() => editing && handleAnswerSelect(index, key)}
                                 className="accent-sky-500"
                               />
                               {editing ? (
@@ -171,7 +200,7 @@ const GenerateQuizBuilder = () => {
                                   }
                                 />
                               ) : (
-                                <span>
+                                <span className={answerLetter.startsWith(key) ? "font-bold text-sky-600" : ""}>
                                   <strong>{key}:</strong> {q.choices[key]}
                                 </span>
                               )}

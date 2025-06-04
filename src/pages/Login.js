@@ -45,13 +45,40 @@ function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user_email', data.user.email);
-        localStorage.setItem('user_role', data.user.role);
-        localStorage.setItem('user_avatar', data.user.avatar || '');
+        const { user } = data;
 
-        if (data.user.id) {
-          localStorage.setItem('user_id', data.user.id);
+        // 🚫 Block students
+        if (user.role === 'student') {
+          setShowLoader(false);
+          return window.PNotify.alert({
+            text: "Student login is not allowed.",
+            type: 'error',
+            delay: 2500,
+            styling: 'brighttheme',
+            icons: 'brighttheme'
+          });
+        }
+
+        // 🚫 Block unverified instructors
+        if (user.role === 'instructor' && (!user.status || user.status === false)) {
+          setShowLoader(false);
+          return window.PNotify.alert({
+            text: "Instructor account not yet verified.",
+            type: 'error',
+            delay: 2500,
+            styling: 'brighttheme',
+            icons: 'brighttheme'
+          });
+        }
+
+        // ✅ Proceed with login
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user_email', user.email);
+        localStorage.setItem('user_role', user.role);
+        localStorage.setItem('user_avatar', user.avatar || '');
+
+        if (user.id) {
+          localStorage.setItem('user_id', user.id);
         } else {
           localStorage.removeItem('user_id');
         }
@@ -64,7 +91,14 @@ function LoginPage() {
           icons: 'brighttheme',
         });
 
-        setTimeout(() => navigate('/dashboard'), 1500);
+        // ✅ Redirect based on role
+        setTimeout(() => {
+          if (user.role === 'admin') {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/dashboard');
+          }
+        }, 1500);
       } else {
         setShowLoader(false);
         window.PNotify.alert({
@@ -86,7 +120,6 @@ function LoginPage() {
       });
     }
   };
-
 
   return (
     <div className="bg-gray-50 min-h-screen flex relative font-['Inter']">

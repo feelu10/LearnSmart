@@ -4,8 +4,8 @@ import avatarFallback from '../assets/avatars.png';
 const PageHeader = () => {
   const storedAvatar = localStorage.getItem('user_avatar');
   const storedEmail = localStorage.getItem('user_email');
-  const storedId = localStorage.getItem('user_id'); // LS-00000001 (for students)
-  const storedRole = localStorage.getItem('user_role'); // 'student' or 'instructor'
+  const storedId = localStorage.getItem('user_id');
+  const storedRole = localStorage.getItem('user_role'); 
 
   const avatar = storedAvatar && storedAvatar !== '""'
     ? storedAvatar
@@ -13,7 +13,10 @@ const PageHeader = () => {
 
   const displayText = storedRole === 'instructor'
     ? 'Instructor'
+    : storedRole === 'admin'
+    ? 'Admin'
     : storedId || 'ID not assigned';
+
 
   return (
     <div className="header">

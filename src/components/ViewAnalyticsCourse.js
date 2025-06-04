@@ -1,14 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import './ViewAnalyticsCourse.css';
 import avatarIcon from '../assets/avatar.png';
 import { useParams, useNavigate } from 'react-router-dom';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import PageHeader from './PageHeader';
 
 const ViewAnalyticsCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('analytics');
-  
+  const [showLoader, setShowLoader] = useState(true);
+
+  const [analytics, setAnalytics] = useState({
+    total_students: 0,
+    course_materials: 0,
+    quizzes_taken: 0,
+    failed_quizzes: 0
+  });
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/courses/${id}/analytics`);
+        const data = await res.json();
+        setAnalytics(data);
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+      } finally {
+        setShowLoader(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, [id]);
+
   const handleTabClick = (tab) => {
     if (tab === 'details') {
       navigate(`/course/${id}`);
@@ -16,63 +42,51 @@ const ViewAnalyticsCourse = () => {
       navigate(`/course/${id}/students`);
     }
   };
-  
+
+  const chartData = [
+    { name: 'Passed', value: analytics.quizzes_taken - analytics.failed_quizzes },
+    { name: 'Failed/Past', value: analytics.failed_quizzes },
+  ];
+
+  const barData = [
+    { name: 'Students', value: analytics.total_students },
+    { name: 'Materials', value: analytics.course_materials },
+    { name: 'Quizzes Taken', value: analytics.quizzes_taken },
+    { name: 'Failed/Past', value: analytics.failed_quizzes },
+  ];
+
+  const COLORS = ['#00C49F', '#FF8042'];
+
+  if (showLoader) {
+    return (
+      <div className="fixed inset-0 bg-white/70 z-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-sky-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="analytics-layout">
       <Sidebar />
       <div className="analytics-main">
-        <div className="header">
-          <div className="user-info">
-            <img src={avatarIcon} alt="User Avatar" className="avatar" />
-            <span className="user-name-bold">John Doe</span>
-            <span className="user-role">Instructor</span>
-          </div>
-          <div className="icons">
-            <span className="icon-svg">
-              {/* Bell SVG */}
-              <svg width="24" height="24" fill="none" stroke="#373A3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M18 16v-5a6 6 0 10-12 0v5l-1.5 2h15z"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-            </span>
-            <span className="icon-svg">
-              {/* User SVG */}
-              <svg width="24" height="24" fill="none" stroke="#373A3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 8-4 8-4s8 0 8 4"/></svg>
-            </span>
-          </div>
-        </div>
-        
+      <PageHeader
+        username={localStorage.getItem('user_email')}
+        role={localStorage.getItem('user_role') || 'User'}
+        avatar={localStorage.getItem('user_avatar') || avatarIcon}
+      />
+
         <div className="course-header-section">
-          <h1 className="course-title">Course</h1>
+          <h1 className="course-title">Course Analytics</h1>
         </div>
-        
+
         <div className="course-tabs">
           <div className="tab-group">
-            <button 
-              className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}
-              onClick={() => handleTabClick('details')}
-            >
-              Details
-            </button>
-            <button 
-              className={`tab-button ${activeTab === 'manage' ? 'active' : ''}`}
-              onClick={() => handleTabClick('manage')}
-            >
-              Manage Students
-            </button>
-            <button 
-              className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
-            >
-              View Analytics
-            </button>
-          </div>
-          <div className="analytics-period-selector">
-            <select className="period-select">
-              <option>Today</option>
-              <option>This Week</option>
-              <option>This Month</option>
-              <option>This Year</option>
-            </select>
+            <button className={`tab-button ${activeTab === 'details' ? 'active' : ''}`} onClick={() => handleTabClick('details')}>Details</button>
+            <button className={`tab-button ${activeTab === 'manage' ? 'active' : ''}`} onClick={() => handleTabClick('manage')}>Manage Students</button>
+            <button className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}>View Analytics</button>
           </div>
         </div>
-        
+
         <div className="analytics-dashboard">
           <div className="analytics-stats-row">
             <div className="stat-card">
@@ -83,11 +97,11 @@ const ViewAnalyticsCourse = () => {
                 </svg>
               </div>
               <div className="stat-content">
-                <h2 className="stat-value">1,674,767</h2>
+                <h2 className="stat-value">{analytics.total_students}</h2>
                 <p className="stat-label">Students</p>
               </div>
             </div>
-            
+
             <div className="stat-card">
               <div className="stat-icon tasks-icon">
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none">
@@ -98,11 +112,11 @@ const ViewAnalyticsCourse = () => {
                 </svg>
               </div>
               <div className="stat-content">
-                <h2 className="stat-value">3</h2>
-                <p className="stat-label">Pending tasks</p>
+                <h2 className="stat-value">{analytics.quizzes_taken}</h2>
+                <p className="stat-label">Quizzes Taken</p>
               </div>
             </div>
-            
+
             <div className="stat-card">
               <div className="stat-icon total-icon">
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none">
@@ -111,11 +125,11 @@ const ViewAnalyticsCourse = () => {
                 </svg>
               </div>
               <div className="stat-content">
-                <h2 className="stat-value">1234</h2>
-                <p className="stat-label">Total no</p>
+                <h2 className="stat-value">{analytics.failed_quizzes}</h2>
+                <p className="stat-label">Failed / Past</p>
               </div>
             </div>
-            
+
             <div className="stat-card">
               <div className="stat-icon material-icon">
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none">
@@ -128,89 +142,43 @@ const ViewAnalyticsCourse = () => {
                 </svg>
               </div>
               <div className="stat-content">
-                <h2 className="stat-value">56</h2>
+                <h2 className="stat-value">{analytics.course_materials}</h2>
                 <p className="stat-label">Course Material</p>
               </div>
             </div>
           </div>
-          
+
           <div className="analytics-sections">
-            <div className="analytics-section activity-section">
-              <div className="section-header">
-                <h3>Recent Activity</h3>
-                <div className="section-dropdown">
-                  Today <span className="dropdown-arrow">▼</span>
-                </div>
-              </div>
-              <div className="activity-list">
-                <div className="activity-item">
-                  <div className="activity-icon comment-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="#f44336" strokeWidth="2" fill="none">
-                      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                    </svg>
-                  </div>
-                  <div className="activity-content">
-                    <p><strong>Kevin</strong> comments on your lecture</p>
-                    <span className="activity-time">Just now</span>
-                  </div>
-                </div>
-                <div className="activity-item">
-                  <div className="activity-icon rating-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="#2196f3" strokeWidth="2" fill="none">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                    </svg>
-                  </div>
-                  <div className="activity-content">
-                    <p><strong>John</strong> give a 5 star rating on your course "2021 ui/ux design with figma"</p>
-                    <span className="activity-time">5 mins ago</span>
-                  </div>
-                </div>
-                <div className="activity-item">
-                  <div className="activity-icon assessment-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="#ff9800" strokeWidth="2" fill="none">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <polyline points="10 9 9 9 8 9"/>
-                    </svg>
-                  </div>
-                  <div className="activity-content">
-                    <p><strong>Joshua</strong> submitted an assessment task.</p>
-                    <span className="activity-time">6 mins ago</span>
-                  </div>
-                </div>
-              </div>
+            <div className="chart-section">
+              <h3>Quiz Results Distribution</h3>
+              <PieChart width={300} height={240}>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
             </div>
-            
-            <div className="analytics-section chart-section">
-              <div className="section-header">
-                <h3>Class Overview</h3>
-                <div className="section-dropdown">
-                  Today <span className="dropdown-arrow">▼</span>
-                </div>
-              </div>
-              <div className="chart-container">
-                <div className="bar-chart">
-                  <div className="chart-grid">
-                    <div className="chart-grid-line"></div>
-                    <div className="chart-grid-line"></div>
-                    <div className="chart-grid-line"></div>
-                    <div className="chart-grid-line"></div>
-                  </div>
-                  <div className="chart-bars">
-                    <div className="chart-bar" style={{ height: '40%' }}></div>
-                    <div className="chart-bar" style={{ height: '85%' }}></div>
-                    <div className="chart-bar" style={{ height: '30%' }}></div>
-                    <div className="chart-bar" style={{ height: '60%' }}></div>
-                    <div className="chart-bar" style={{ height: '45%' }}></div>
-                    <div className="chart-bar" style={{ height: '30%' }}></div>
-                    <div className="chart-bar" style={{ height: '55%' }}></div>
-                    <div className="chart-bar" style={{ height: '45%' }}></div>
-                    <div className="chart-bar" style={{ height: '35%' }}></div>
-                  </div>
-                </div>
-              </div>
+
+            <div className="chart-section">
+              <h3>Quiz Metrics Overview</h3>
+              <BarChart width={500} height={250} data={barData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#8884d8" />
+              </BarChart>
             </div>
           </div>
         </div>
@@ -219,4 +187,4 @@ const ViewAnalyticsCourse = () => {
   );
 };
 
-export default ViewAnalyticsCourse; 
+export default ViewAnalyticsCourse;
