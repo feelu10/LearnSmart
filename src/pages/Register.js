@@ -5,7 +5,7 @@ function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState('instructor');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // ✅ loader state
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ function RegisterPage() {
       setEmail('');
       setPassword('');
       setFullName('');
-      setRole('student');
+      setRole('instructor');
     } catch (err) {
       window.PNotify.alert({
         text: err.message,
